@@ -6,6 +6,8 @@ import { Piano } from '@/components/piano/Piano';
 import { SettingsPanel } from '@/components/panels/SettingsPanel';
 import { KeyBindingPanel } from '@/components/panels/KeyBindingPanel';
 import { ImportExportPanel } from '@/components/panels/ImportExportPanel';
+import { ScoreLibraryDialog } from '@/components/practice/ScoreLibraryDialog';
+import { FallingNotesCanvas } from '@/components/practice/FallingNotesCanvas';
 import { SyncBanner } from '@/components/auth/SyncBanner';
 import { useKeyboard } from '@/hooks/useKeyboard';
 import { usePianoStore } from '@/lib/store/pianoStore';
@@ -13,6 +15,8 @@ import { initAudio } from '@/lib/audio/synth';
 import { useAuthMigration } from '@/hooks/useAuthMigration';
 import { usePianoSettings } from '@/hooks/usePianoSettings';
 import { useKeyBindings } from '@/hooks/useKeyBindings';
+import { useAudioInit } from '@/hooks/useAudioInit';
+import { useScorePlayback } from '@/hooks/useScorePlayback';
 
 // ─── SVG Icons ───────────────────────────────────────────────────────
 
@@ -44,9 +48,36 @@ function ImportExportIcon() {
   );
 }
 
-function PlayIcon() {
+function LibraryIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 18V5l12-2v13"></path>
+      <circle cx="6" cy="18" r="3"></circle>
+      <circle cx="18" cy="16" r="3"></circle>
+    </svg>
+  );
+}
+
+function StopIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="6" width="12" height="12" />
+    </svg>
+  );
+}
+
+function PauseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
+    </svg>
+  );
+}
+
+function PlaySmallIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <polygon points="5 3 19 12 5 21 5 3" />
     </svg>
   );
@@ -55,17 +86,24 @@ function PlayIcon() {
 // ─── Main Page ───────────────────────────────────────────────────────
 
 export default function Home() {
-  const [audioStarted, setAudioStarted] = useState(false);
 
   const settingsPanelOpen = usePianoStore((s) => s.settingsPanelOpen);
   const keybindingPanelOpen = usePianoStore((s) => s.keybindingPanelOpen);
   const importExportPanelOpen = usePianoStore((s) => s.importExportPanelOpen);
+  const scoreLibraryPanelOpen = usePianoStore((s) => s.scoreLibraryPanelOpen);
+  
   const audioLoading = usePianoStore((s) => s.audioLoading);
   const audioReady = usePianoStore((s) => s.audioReady);
 
   const setSettingsPanelOpen = usePianoStore((s) => s.setSettingsPanelOpen);
   const setKeybindingPanelOpen = usePianoStore((s) => s.setKeybindingPanelOpen);
   const setImportExportPanelOpen = usePianoStore((s) => s.setImportExportPanelOpen);
+  const setScoreLibraryPanelOpen = usePianoStore((s) => s.setScoreLibraryPanelOpen);
+
+  const activeScore = usePianoStore((s) => s.activeScore);
+  const scorePlaying = usePianoStore((s) => s.scorePlaying);
+  const setScorePlaying = usePianoStore((s) => s.setScorePlaying);
+  const setActiveScore = usePianoStore((s) => s.setActiveScore);
 
   // Initialize hooks
   usePianoSettings(); // Loads settings from localStorage
@@ -75,19 +113,8 @@ export default function Home() {
   // Handle Auth Migration
   const { isSignedIn, isLoaded } = useAuthMigration();
 
-  const handleAudioInit = useCallback(async () => {
-    if (audioStarted) return;
-    setAudioStarted(true);
-
-    const store = usePianoStore.getState();
-    if (!store.audioReady && !store.audioLoading) {
-      store.setAudioLoading(true);
-      await initAudio(() => {
-        usePianoStore.getState().setAudioReady(true);
-        usePianoStore.getState().setAudioLoading(false);
-      });
-    }
-  }, [audioStarted]);
+  useAudioInit(); // Silently initializes audio on first user interaction
+  useScorePlayback(); // Manages the timer for practice mode
 
   return (
     <>
@@ -106,6 +133,40 @@ export default function Home() {
           </div>
 
           <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 8px' }} />
+
+          {activeScore && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '12px', background: 'var(--surface)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <span style={{ fontSize: '12px', margin: '0 8px', color: 'var(--accent-blue)', fontWeight: 600 }}>
+                {activeScore.title}
+              </span>
+              <button 
+                className="btn btn--small" 
+                onClick={() => setScorePlaying(!scorePlaying)}
+                title={scorePlaying ? "Pause" : "Play"}
+                style={{ padding: '4px', background: 'transparent', border: 'none' }}
+              >
+                {scorePlaying ? <PauseIcon /> : <PlaySmallIcon />}
+              </button>
+              <button 
+                className="btn btn--small" 
+                onClick={() => setActiveScore(null)}
+                title="Stop Practice"
+                style={{ padding: '4px', background: 'transparent', border: 'none', color: 'var(--accent-red)' }}
+              >
+                <StopIcon />
+              </button>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className={`topbar-btn ${scoreLibraryPanelOpen ? 'topbar-btn--active' : ''}`}
+            onClick={() => setScoreLibraryPanelOpen(!scoreLibraryPanelOpen)}
+            aria-label="Practice Mode Library"
+            title="Practice Library"
+          >
+            <LibraryIcon />
+          </button>
 
           <button
             type="button"
@@ -154,29 +215,8 @@ export default function Home() {
       )}
 
       {/* ─── Main Content ─── */}
-      <main className="main-content">
-        {/* Audio Init Overlay */}
-        {!audioStarted && (
-          <div
-            className={`audio-overlay ${audioStarted ? 'audio-overlay--hidden' : ''}`}
-            onClick={handleAudioInit}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.code === 'Space' || e.code === 'Enter') {
-                handleAudioInit();
-              }
-            }}
-          >
-            <div className="audio-overlay-icon">
-              <PlayIcon />
-            </div>
-            <p className="audio-overlay-text">Click anywhere to start playing</p>
-            <p className="audio-overlay-sub">or press any key on your keyboard</p>
-          </div>
-        )}
-
-        {/* Piano */}
+      <main className="main-content" style={{ display: 'flex', flexDirection: 'column' }}>
+        <FallingNotesCanvas />
         <Piano />
       </main>
 
@@ -194,6 +234,11 @@ export default function Home() {
       <ImportExportPanel
         isOpen={importExportPanelOpen}
         onClose={() => setImportExportPanelOpen(false)}
+      />
+
+      <ScoreLibraryDialog
+        isOpen={scoreLibraryPanelOpen}
+        onClose={() => setScoreLibraryPanelOpen(false)}
       />
     </>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { Drawer } from '@/components/ui/Drawer';
+import { Dialog } from '@/components/ui/Dialog';
 import { usePianoStore } from '@/lib/store/pianoStore';
 import type { KeyBindingExport, KeyBindingSet } from '@/types/piano';
 import { BANNED_KEYS } from '@/types/piano';
@@ -167,7 +167,7 @@ export function ImportExportPanel({ isOpen, onClose }: ImportExportPanelProps) {
   }, [importPreview, bindings, updateBindings]);
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title="Import / Export">
+    <Dialog isOpen={isOpen} onClose={onClose} title="Import / Export" width="500px">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* ── Export ── */}
         <div className="settings-section">
@@ -268,6 +268,6 @@ export function ImportExportPanel({ isOpen, onClose }: ImportExportPanelProps) {
           )}
         </div>
       </div>
-    </Drawer>
+    </Dialog>
   );
 }

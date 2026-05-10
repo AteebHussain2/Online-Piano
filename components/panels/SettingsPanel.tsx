@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { Drawer } from '@/components/ui/Drawer';
+import { Dialog } from '@/components/ui/Dialog';
 import { Toggle } from '@/components/ui/Toggle';
 import { Slider } from '@/components/ui/Slider';
 import { usePianoStore } from '@/lib/store/pianoStore';
@@ -43,7 +43,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   );
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title="Settings">
+    <Dialog isOpen={isOpen} onClose={onClose} title="Settings" width="500px">
       {/* ── Visual ── */}
       <div className="settings-section">
         <div className="settings-section-title">Visual</div>
@@ -290,6 +290,6 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
           />
         </div>
       </div>
-    </Drawer>
+    </Dialog>
   );
 }

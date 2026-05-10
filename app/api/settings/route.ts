@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       settings: body.settings,
       updatedAt: new Date(),
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: 'after' }
   );
 
   return Response.json({ settings: doc.settings, source: "database" });

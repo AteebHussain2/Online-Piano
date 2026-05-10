@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Drawer } from '@/components/ui/Drawer';
+import { Dialog } from '@/components/ui/Dialog';
 import { usePianoStore } from '@/lib/store/pianoStore';
 import { BANNED_KEYS } from '@/types/piano';
 import { ALL_NOTES } from '@/lib/audio/noteMap';
@@ -170,7 +170,7 @@ export function KeyBindingPanel({ isOpen, onClose }: KeyBindingPanelProps) {
   }, [updateBindings]);
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title="Keybindings">
+    <Dialog isOpen={isOpen} onClose={onClose} title="Keybindings" width="700px">
       <div className="kb-editor">
         {/* Keyboard selector */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
@@ -299,6 +299,6 @@ export function KeyBindingPanel({ isOpen, onClose }: KeyBindingPanelProps) {
           </div>
         </div>
       </div>
-    </Drawer>
+    </Dialog>
   );
 }

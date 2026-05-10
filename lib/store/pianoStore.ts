@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { PianoSettings, KeyBindingSet, KeyPressSource } from '@/types/piano';
+import type { MusicScore } from '@/types/score';
 import { DEFAULT_SETTINGS } from '@/types/piano';
 import { DEFAULT_BINDINGS } from '@/lib/keybindings/defaults';
 
@@ -31,6 +32,13 @@ interface PianoState {
   settingsPanelOpen: boolean;
   keybindingPanelOpen: boolean;
   importExportPanelOpen: boolean;
+  scoreLibraryPanelOpen: boolean;
+
+  // Practice state
+  activeScore: MusicScore | null;
+  scoreTime: number;
+  scorePlaying: boolean;
+  scoreMode: 'practice' | 'rhythm';
 
   // Actions
   pressKey: (note: string, source: KeyPressSource) => void;
@@ -44,6 +52,11 @@ interface PianoState {
   setSettingsPanelOpen: (open: boolean) => void;
   setKeybindingPanelOpen: (open: boolean) => void;
   setImportExportPanelOpen: (open: boolean) => void;
+  setScoreLibraryPanelOpen: (open: boolean) => void;
+  setActiveScore: (score: MusicScore | null) => void;
+  setScoreTime: (time: number) => void;
+  setScorePlaying: (playing: boolean) => void;
+  setScoreMode: (mode: 'practice' | 'rhythm') => void;
 }
 
 export const usePianoStore = create<PianoState>((set) => ({
@@ -56,6 +69,11 @@ export const usePianoStore = create<PianoState>((set) => ({
   settingsPanelOpen: false,
   keybindingPanelOpen: false,
   importExportPanelOpen: false,
+  scoreLibraryPanelOpen: false,
+  activeScore: null,
+  scoreTime: 0,
+  scorePlaying: false,
+  scoreMode: 'practice',
 
   pressKey: (note, source) =>
     set((state) => {
@@ -93,5 +111,13 @@ export const usePianoStore = create<PianoState>((set) => ({
     set({ keybindingPanelOpen: open, settingsPanelOpen: false, importExportPanelOpen: false }),
 
   setImportExportPanelOpen: (open) =>
-    set({ importExportPanelOpen: open, settingsPanelOpen: false, keybindingPanelOpen: false }),
+    set({ importExportPanelOpen: open, settingsPanelOpen: false, keybindingPanelOpen: false, scoreLibraryPanelOpen: false }),
+
+  setScoreLibraryPanelOpen: (open) =>
+    set({ scoreLibraryPanelOpen: open, importExportPanelOpen: false, settingsPanelOpen: false, keybindingPanelOpen: false }),
+
+  setActiveScore: (score) => set({ activeScore: score, scoreTime: 0, scorePlaying: false }),
+  setScoreTime: (time) => set({ scoreTime: time }),
+  setScorePlaying: (playing) => set({ scorePlaying: playing }),
+  setScoreMode: (mode) => set({ scoreMode: mode }),
 }));

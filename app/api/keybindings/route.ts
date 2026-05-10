@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         keyboard2: new Map(Object.entries(body.keyboard2)),
         updatedAt: new Date(),
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!doc) {

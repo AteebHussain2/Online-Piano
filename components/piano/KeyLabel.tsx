@@ -60,27 +60,23 @@ function KeyLabelComponent({
 
   return (
     <div className="piano-key-labels">
-      {showKeyLabel && keyboard1Key && (
-        <span
-          className="piano-key-label"
-          style={{ color: keyboard1Color }}
-        >
-          {codeToDisplay(keyboard1Key)}
-        </span>
-      )}
-      {showKeyLabel && keyboard2Key && (
-        <span
-          className="piano-key-label"
-          style={{ color: keyboard2Color }}
-        >
-          {codeToDisplay(keyboard2Key)}
-        </span>
-      )}
       {showNoteName && noteName && (
-        <span className={`piano-note-name ${isBlack ? 'piano-note-name--black' : ''}`}>
+        <div className={`piano-note-name ${isBlack ? 'piano-note-name--black' : ''}`}>
           {noteName}
-        </span>
+        </div>
       )}
+      <div className="piano-key-binds">
+        {showKeyLabel && keyboard1Key && (
+          <span className="piano-key-label" style={{ color: keyboard1Color }}>
+            {codeToDisplay(keyboard1Key)}
+          </span>
+        )}
+        {showKeyLabel && keyboard2Key && (
+          <span className="piano-key-label" style={{ color: keyboard2Color }}>
+            {codeToDisplay(keyboard2Key)}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
