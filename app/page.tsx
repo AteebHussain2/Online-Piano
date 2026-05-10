@@ -104,7 +104,7 @@ export default function Home() {
             <div className="topbar-status-dot" />
             <span>{audioReady ? 'Ready' : audioLoading ? 'Loading...' : 'Ready to load'}</span>
           </div>
-          
+
           <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 8px' }} />
 
           <button
@@ -136,7 +136,7 @@ export default function Home() {
           >
             <SettingsIcon />
           </button>
-          
+
           {isLoaded && isSignedIn && (
             <div style={{ marginLeft: '8px' }}>
               <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
@@ -144,7 +144,7 @@ export default function Home() {
           )}
         </div>
       </header>
-      
+
       {/* ─── Sync Banner ─── */}
       {isLoaded && !isSignedIn && <SyncBanner />}
 
