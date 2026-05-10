@@ -1,13 +1,18 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { UserButton } from '@clerk/nextjs';
 import { Piano } from '@/components/piano/Piano';
 import { SettingsPanel } from '@/components/panels/SettingsPanel';
 import { KeyBindingPanel } from '@/components/panels/KeyBindingPanel';
 import { ImportExportPanel } from '@/components/panels/ImportExportPanel';
+import { SyncBanner } from '@/components/auth/SyncBanner';
 import { useKeyboard } from '@/hooks/useKeyboard';
 import { usePianoStore } from '@/lib/store/pianoStore';
 import { initAudio } from '@/lib/audio/synth';
+import { useAuthMigration } from '@/hooks/useAuthMigration';
+import { usePianoSettings } from '@/hooks/usePianoSettings';
+import { useKeyBindings } from '@/hooks/useKeyBindings';
 
 // ─── SVG Icons ───────────────────────────────────────────────────────
 
@@ -62,8 +67,13 @@ export default function Home() {
   const setKeybindingPanelOpen = usePianoStore((s) => s.setKeybindingPanelOpen);
   const setImportExportPanelOpen = usePianoStore((s) => s.setImportExportPanelOpen);
 
-  // Activate keyboard hook
-  useKeyboard();
+  // Initialize hooks
+  usePianoSettings(); // Loads settings from localStorage
+  useKeyBindings(); // Loads bindings from localStorage
+  useKeyboard(); // Activates keyboard input
+
+  // Handle Auth Migration
+  const { isSignedIn, isLoaded } = useAuthMigration();
 
   const handleAudioInit = useCallback(async () => {
     if (audioStarted) return;
@@ -92,8 +102,10 @@ export default function Home() {
         <div className="topbar-actions">
           <div className="topbar-status">
             <div className="topbar-status-dot" />
-            <span>{audioReady ? 'Ready' : audioLoading ? 'Loading...' : 'Guest'}</span>
+            <span>{audioReady ? 'Ready' : audioLoading ? 'Loading...' : 'Ready to load'}</span>
           </div>
+          
+          <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 8px' }} />
 
           <button
             type="button"
@@ -124,8 +136,17 @@ export default function Home() {
           >
             <SettingsIcon />
           </button>
+          
+          {isLoaded && isSignedIn && (
+            <div style={{ marginLeft: '8px' }}>
+              <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
+            </div>
+          )}
         </div>
       </header>
+      
+      {/* ─── Sync Banner ─── */}
+      {isLoaded && !isSignedIn && <SyncBanner />}
 
       {/* ─── Loading Bar ─── */}
       {audioLoading && (
@@ -177,3 +198,4 @@ export default function Home() {
     </>
   );
 }
+

@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KeyFlow — Online Piano
+
+KeyFlow is a high-performance, browser-based 88-key online piano. It is designed to feel like a real instrument — fast, responsive, and zero-friction. Anyone can open it and start playing immediately without being forced to create an account. It features a "Midnight Studio" aesthetic, dual-keyboard zones, customizable keybindings, and optional cloud sync.
+
+![KeyFlow Piano Preview](public/preview.png) *(Add a screenshot here later)*
+
+## Features
+
+- **Full 88-Key Range**: Play a complete grand piano directly from your browser.
+- **Zero Friction**: No login required. Start playing the moment the page loads.
+- **Low Latency Audio**: Powered by Tone.js and the Web Audio API with high-quality Salamander Grand Piano samples.
+- **Dual Keyboard Zones**: Support for mapping two physical keyboard rows (e.g., QWERTY and ZXCV) independently.
+- **Customizable Keybindings**: Fully map out your own shortcuts using the visual binding editor. 
+- **Import/Export**: Share your custom layouts as JSON files or back them up.
+- **Cloud Sync**: (Optional) Sign in via Clerk to sync your custom keybindings and settings across devices (backed by MongoDB).
+- **Midnight Studio Theme**: A professional, dark, sleek UI designed for musicians.
+- **Touch Support**: Playable on mobile devices with multi-touch support.
+
+## Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict mode)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Audio Engine**: [Tone.js](https://tonejs.github.io/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Authentication**: [Clerk](https://clerk.com/)
+- **Database**: [MongoDB](https://www.mongodb.com/) (via Mongoose)
+- **Validation**: [Zod](https://zod.dev/)
+
+## Architecture
+
+1. **Guest-First Design**: All settings and keybindings are immediately stored in `localStorage`. The piano is 100% functional without a backend.
+2. **Audio Initialization**: To comply with browser autoplay policies, the audio context is lazily initialized on the first user interaction (click or keypress).
+3. **Physical Key Mapping**: Input handling uses `KeyboardEvent.code` to remain agnostic of keyboard layouts (e.g., AZERTY vs. QWERTY) and strictly enforces single-key triggers (modifier combinations are ignored).
+4. **Auth Migration**: When a guest signs in for the first time, their local `localStorage` settings and bindings are automatically migrated to MongoDB.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 18+
+- `pnpm` (recommended)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/keyflow-piano.git
+   cd keyflow-piano
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-## Learn More
+3. Configure Environment Variables:
+   Copy `.env.example` to `.env.local` and fill in your keys.
+   ```bash
+   cp .env.example .env.local
+   ```
+   *Note: The app will run locally without MongoDB or Clerk, but cloud sync and login will be disabled.*
 
-To learn more about Next.js, take a look at the following resources:
+4. Run the development server:
+   ```bash
+   pnpm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Cloud Setup (Optional)
 
-## Deploy on Vercel
+To enable cloud sync, you will need:
+1. A **Clerk** account. Get your publishable/secret keys and configure the redirect URLs in the Clerk dashboard.
+2. A **MongoDB** database (e.g., MongoDB Atlas). Get your connection string.
+3. Configure a **Clerk Webhook** pointing to your deployed domain (`https://your-domain.com/api/webhooks/clerk`) and listen for `user.created` and `user.deleted` events. Put the webhook secret in your `.env.local`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.

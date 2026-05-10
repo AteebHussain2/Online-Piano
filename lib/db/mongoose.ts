@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI;
-
-if (!MONGO_URI) {
-  throw new Error("MONGO_URI is not defined in environment variables!");
-}
-
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -23,6 +17,12 @@ if (!global.mongoose) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
+  const MONGO_URI = process.env.MONGO_URI;
+
+  if (!MONGO_URI) {
+    throw new Error("MONGO_URI is not defined in environment variables!");
+  }
+
   if (cached.conn) {
     console.log("✅ Using existing MongoDB connection");
     return cached.conn;
@@ -31,7 +31,7 @@ async function connectDB(): Promise<typeof mongoose> {
   if (!cached.promise) {
     console.log("🔄 Connecting to MongoDB...");
     cached.promise = mongoose
-      .connect(MONGO_URI!, {
+      .connect(MONGO_URI, {
         dbName: "OnlinePiano",
         bufferCommands: false,
       })
